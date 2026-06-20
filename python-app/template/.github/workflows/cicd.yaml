@@ -15,8 +15,8 @@ jobs:
     - name: Build and Import Docker image
       run: |
        # Tag and import the image with the unique GitHub commit SHA
-       sudo docker build -t ${{'${{ values.app_name }}'}}:${{ '${{ github.sha }}' }} .
-       sudo docker save ${{'${{values.app_name}}'}}:${{ '${{ github.sha }}'}} | sudo k3s ctr images import -
+       sudo docker build -t ${{ values.app_name }}:${{ '${{ github.sha }}' }} .
+       sudo docker save ${{values.app_name}}:${{ '${{ github.sha }}'}} | sudo k3s ctr images import -
 
   deploy:
     needs: build
@@ -32,7 +32,7 @@ jobs:
     - name: Update Deployment Image Tag in Git
       run: |
         # Change the image tag inside your deployment sub-directory
-        sed -i 's|image: flaskapp:.*|image: flaskapp:${{ '${{ github.sha }}' }}|g' app-deployment/flaskapp.yaml
+        sed -i 's|image: ${{values.app_name}}:.*|image: ${{values.app_name}}:${{ '${{ github.sha }}' }}|g' app-deployment/flaskapp.yaml
         
         # Configure local git user profile
         git config --global user.name "github-actions[bot]"
@@ -40,7 +40,7 @@ jobs:
         
         # Commit the file change
         git add app-deployment/flaskapp.yaml
-        git commit -m "chore: update flaskapp image tag to ${{'${{ github.sha }}'}} [skip ci]"
+        git commit -m "chore: update ${{values.app_name}} image tag to ${{'${{ github.sha }}'}} [skip ci]"
         
         # Push directly using the credentials preserved by the checkout step
         git push origin main
