@@ -6,6 +6,6 @@ myflaskapp/v1/health
 
 You can access application using below url :--
 
-http://100.27.189.56/myflaskapp/v1/details
+http://18.215.149.16/flaskapp/v1/details
 
-http://100.27.189.56/myflaskapp/v1/health
+http://18.215.149.16/flaskapp/v1/health

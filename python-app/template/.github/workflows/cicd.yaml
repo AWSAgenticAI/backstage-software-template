@@ -49,3 +49,7 @@ jobs:
     - name: deploy python app ${{values.app_name}} 
       run: |
         sudo kubectl apply -f argocd-flaskapp.yaml
+    - name: Force ArgoCD to Hard Refresh and Sync
+      run: |
+        # Tells ArgoCD to instantly sync the new image tag on every code push
+        sudo kubectl patch application ${{ github.event.repository.name }}-app -n argocd --type=merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
