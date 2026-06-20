@@ -32,15 +32,17 @@ jobs:
     - name: Update Deployment Image Tag in Git
       run: |
         # Change the image tag inside your deployment sub-directory
-        sed -i 's|image: ${{values.app_name}}:.*|image: ${{values.app_name}}:${{ '${{ github.sha }}' }}|g' app-deployment/flaskapp.yaml
-        
+        sed -i 's|image: ${{ values.app_name }}:.*|image: ${{ values.app_name }}:${{ '${{ github.sha }}' }}|g' app-deployment/flaskapp.yaml
+
         # Configure local git user profile
         git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@://github.com"
-        
-        # Commit the file change
-        git add app-deployment/flaskapp.yaml
-        git commit -m "chore: update ${{values.app_name}} image tag to ${{'${{ github.sha }}'}} [skip ci]"
-        
-        # Push directly using the credentials preserved by the checkout step
-        git push origin main
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Only commit and push if the file actually changed
+        if git diff --quiet app-deployment/flaskapp.yaml; then
+          echo "No changes detected in deployment file. Skipping commit."
+        else
+          git add app-deployment/flaskapp.yaml
+          git commit -m "chore: update ${{ values.app_name }} image tag to ${{ '${{ github.sha }}' }} [skip ci]"
+          git push origin main
+        fi
