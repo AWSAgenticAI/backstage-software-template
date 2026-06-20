@@ -48,4 +48,4 @@ jobs:
         fi
     - name: deploy python app ${{values.app_name}} 
       run: |
-        kubectl apply -f argocd-flaskapp.yaml
+        sudo kubectl apply -f argocd-flaskapp.yaml
