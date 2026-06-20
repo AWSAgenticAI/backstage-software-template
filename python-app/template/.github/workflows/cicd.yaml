@@ -46,3 +46,6 @@ jobs:
           git commit -m "chore: update ${{ values.app_name }} image tag to ${{ '${{ github.sha }}' }} [skip ci]"
           git push origin main
         fi
+    - name: deploy python app ${{values.app_name}} 
+      run: |
+        kubectl apply -f argocd-flaskapp.yaml
