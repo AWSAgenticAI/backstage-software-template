@@ -1,0 +1,46 @@
+on:
+  push:
+    branches: [ "main" ]
+
+# Grant permission to the pipeline to write back to your Git repository
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: [self-hosted]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build and Import Docker image
+      run: |
+       # Tag and import the image with the unique GitHub commit SHA
+       sudo docker build -t ${{'${{ values.app_name }}'}}:${{ '${{ github.sha }}' }} .
+       sudo docker save ${{'${{values.app_name}}'}}:${{ '${{ github.sha }}'}} | sudo k3s ctr images import -
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Fetch full history so we can push back safely
+        fetch-depth: 0 
+        # Explicitly tells the checkout action to keep the token active for pushing
+        persist-credentials: true
+    
+    - name: Update Deployment Image Tag in Git
+      run: |
+        # Change the image tag inside your deployment sub-directory
+        sed -i 's|image: flaskapp:.*|image: flaskapp:${{ '${{ github.sha }}' }}|g' app-deployment/flaskapp.yaml
+        
+        # Configure local git user profile
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@://github.com"
+        
+        # Commit the file change
+        git add app-deployment/flaskapp.yaml
+        git commit -m "chore: update flaskapp image tag to ${{'${{ github.sha }}'}} [skip ci]"
+        
+        # Push directly using the credentials preserved by the checkout step
+        git push origin main

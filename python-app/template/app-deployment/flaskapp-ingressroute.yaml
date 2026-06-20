@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ${{values.app_name}}-ingressroute
+spec:
+  entryPoints:
+    - web  # Listens on Traefik's standard port 80 gateway
+  routes:
+    # Captures ONLY these two explicit endpoints, letting ArgoCD have everything else
+    - match: Path(`/myflaskapp/v1/details`) || Path(`/myflaskapp/v1/health`)
+      kind: Rule
+      services:
+        - name: ${{values.app_name}}-service
+          port: 8080
