@@ -51,5 +51,10 @@ jobs:
         sudo kubectl apply -f argocd-flaskapp.yaml
     - name: Force ArgoCD to Hard Refresh and Sync
       run: |
-        # Tells ArgoCD to instantly sync the new image tag on every code push
-        sudo kubectl patch application ${{ github.event.repository.name }}-app -n argocd --type=merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+        # Extract just the repository name (e.g., "my-flask-app" from "owner/my-flask-app")
+        APP_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+        
+        echo "Targeting ArgoCD Application: ${APP_NAME}-app"
+        
+        # Safely run the patch command using the shell variable
+        sudo kubectl patch application "${APP_NAME}-app" -n argocd --type=merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
