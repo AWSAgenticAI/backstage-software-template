@@ -6,7 +6,7 @@ import sys
 
 app = Flask(__name__)
 
-@app.route("/flaskapp/v1/details")
+@app.route("/myflaskapp/v1/details")
 def hello_details():
     return jsonify({
         "message": "My First backstage app 4.0",
@@ -21,7 +21,7 @@ def hello_details():
         "app_status": "active"
     })
 
-@app.route("/flaskapp/v1/health")
+@app.route("/myflaskapp/v1/health")
 def health_check():
     # Basic self-check metrics
     health_status = {
